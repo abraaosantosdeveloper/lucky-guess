@@ -1,6 +1,6 @@
 # Explicacao do codigo (.c e .h)
 
-Este documento explica, linha a linha, os arquivos .c e .h do projeto. A biblioteca TextUtils (text_utils.c/.h) nao esta detalhada, conforme solicitado.
+Este documento explica, linha a linha, os arquivos .c e .h do projeto. A biblioteca TextUtils (text_utils.c/.h) nao esta detalhada, uma vez que se trata de uma biblioteca externa.
 
 ## Sumario (arquivos)
 - [Arquivo tipos.h](#arquivo-tiposh)
