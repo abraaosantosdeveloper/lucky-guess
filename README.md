@@ -36,3 +36,15 @@ Para acessar a biblioteca utilizada e implementá-la em seus projetos, basta cli
 
 >*O repositório original possui termos de uso descritos no arquivo **LICENSE**. Leia-o com atenção antes de utilizar a biblioteca.*
 
+## Como compilar
+
+Recomendado:
+```bash
+gcc -std=c11 -Wall -Wextra -o luckyguess.exe *.c
+```
+
+Alternativa (lista explicita de arquivos):
+```bash
+gcc -std=c11 -Wall -Wextra -o luckyguess.exe main.c ui_menu.c jogo.c analise.c historico.c perguntas.c sorteio.c text_utils.c
+```
+

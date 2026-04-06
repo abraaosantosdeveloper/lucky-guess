@@ -9,13 +9,4 @@
  */
 Session executar_partida();
 
-/* * Valida se o palpite está dentro do intervalo permitido (1 a 100).
- * Retorna 1 se for válido, 0 caso contrário.
- */
-int validar_palpite(int palpite);
-
-/* * Exibe o resumo visual da sessão após o acerto (RF03).
- */
-void exibir_resumo_sessao(Session s);
-
 #endif
