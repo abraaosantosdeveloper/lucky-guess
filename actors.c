@@ -10,16 +10,22 @@ typedef struct
 
 typedef struct
 {
-    /* The propperties of the Entity Slave follows the same pattern of the main character, Dex */
-    int health;
-    int spriteState;
-
-} EntitySlave;
-
-typedef struct
-{
     /* The propperties of the Entity follows the same pattern of the main character, Dex */
     int health;
     int spriteState;
+    int entityType;
 
 } Entity;
+
+typedef struct
+{
+    int id;
+    char name[10];
+    char description[60];
+
+} Buffer;
+
+Buffer buffers[3] = {
+    {1, "Imunnity", "Wrong Answers Don't steal health points."},
+    {2, "Critical", "Deals 2x Damage to the enemy."},
+    {3, "Extra HP", "Gives 50 extra HP."}};
