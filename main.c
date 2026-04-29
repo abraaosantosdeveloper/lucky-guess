@@ -30,7 +30,7 @@ typedef struct
 } StatsLayout;
 
 // UI palette for text fill and outline.
-static const Color TEXT_COLOR = {0x40, 0x80, 0xDB, 0xFF};
+static const Color TEXT_COLOR = {0xFF, 0xFF, 0xFF, 0xFF};
 static const Color OUTLINE_COLOR = {0x0A, 0x0F, 0x1F, 0xFF};
 static const Color EM_BREVE_COLOR = {0xFF, 0xFF, 0x00, 0xFF}; // Amarelo para "em breve"
 
@@ -103,15 +103,14 @@ static Font load_ui_font_from_path(const char *path, int baseSize, bool *outIsDe
 }
 
 // Loads the menu textures used in the background and mascot.
-static int load_menu_textures(Texture2D *backgroundTexture, Texture2D *logoTexture, Texture2D *dexTexture)
+static int load_menu_textures(Texture2D *backgroundTexture, Texture2D *logoTexture)
 {
     // Load background, logo, and mascot textures.
     *backgroundTexture = LoadTexture("assets/game_arts/scenario/scenario.png");
     *logoTexture = LoadTexture("assets/game_arts/Logo_no-bg.png");
-    *dexTexture = LoadTexture("assets/game_arts/actors/dex_idle.png");
 
     // Guard against partial loads and release any successful handles.
-    if (backgroundTexture->id == 0 || logoTexture->id == 0 || dexTexture->id == 0)
+    if (backgroundTexture->id == 0 || logoTexture->id == 0)
     {
         // Se algo falhar, descarrega o que foi aberto para evitar vazamentos.
         if (backgroundTexture->id != 0)
@@ -122,10 +121,6 @@ static int load_menu_textures(Texture2D *backgroundTexture, Texture2D *logoTextu
         {
             UnloadTexture(*logoTexture);
         }
-        if (dexTexture->id != 0)
-        {
-            UnloadTexture(*dexTexture);
-        }
         return 0;
     }
 
@@ -133,12 +128,11 @@ static int load_menu_textures(Texture2D *backgroundTexture, Texture2D *logoTextu
 }
 
 // Releases the menu textures loaded at startup.
-static void unload_menu_textures(Texture2D backgroundTexture, Texture2D logoTexture, Texture2D dexTexture)
+static void unload_menu_textures(Texture2D backgroundTexture, Texture2D logoTexture)
 {
     // Free all menu textures.
     UnloadTexture(backgroundTexture);
     UnloadTexture(logoTexture);
-    UnloadTexture(dexTexture);
 }
 
 // Converts CSV timestamps to the on-screen format.
@@ -477,11 +471,10 @@ static void draw_stats_screen(Font titleFont,
 // Runs the main menu loop, handling input, states, and rendering.
 static void run_menu(Texture2D backgroundTexture,
                      Texture2D logoTexture,
-                     Texture2D dexTexture,
                      Font uiFontBold,
                      Font uiFontLight,
                      int screenWidth,
-                     int screenHeight)
+                     int screenHeight, Music bgm)
 {
     // Scale the logo to fit the menu layout.
     float logoScale = 1.0f;
@@ -504,9 +497,6 @@ static void run_menu(Texture2D backgroundTexture,
     const int emBreveSpacing = 16;
     const int highlightPaddingX = 10;
     const int highlightPaddingY = 6;
-    const float dexWidth = 64.0f;
-    const float dexHeight = 86.0f;
-    const float platformTopRatio = 0.64f;
 
     // Compute vertical layout of logo and menu.
     int menuHeight = (itemCount - 1) * itemSpacing + fontSize;
@@ -544,6 +534,9 @@ static void run_menu(Texture2D backgroundTexture,
     // Main loop runs until user closes or selects exit.
     while (state != gameOver && !WindowShouldClose())
     {
+
+        // Update audio stream
+        UpdateMusicStream(bgm);
         // Read pointer position and reset hover state.
         Vector2 mouse = GetMousePosition();
         hoveredIndex = -1;
@@ -713,15 +706,6 @@ static void run_menu(Texture2D backgroundTexture,
         Rectangle bgDst = {0.0f, 0.0f, (float)screenWidth, (float)screenHeight};
         DrawTexturePro(backgroundTexture, bgSrc, bgDst, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 
-        /*
-        float platformY = screenHeight * platformTopRatio;
-        float dexX = 40.0f;
-        float dexY = platformY - dexHeight;
-        Rectangle dexSrc = {0.0f, 0.0f, (float)dexTexture.width, (float)dexTexture.height};
-        Rectangle dexDst = {dexX, dexY, dexWidth, dexHeight};
-        DrawTexturePro(dexTexture, dexSrc, dexDst, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
-        */
-
         // Draw the game logo.
         float logoX = (screenWidth - logoWidth) / 2.0f;
         DrawTextureEx(logoTexture, (Vector2){logoX, logoY}, 0.0f, logoScale, WHITE);
@@ -798,15 +782,18 @@ int main(void)
 
     // Initialize the window and frame rate.
     InitWindow(screenWidth, screenHeight, "Paramancer");
+    InitAudioDevice();
     SetExitKey(KEY_NULL);
     SetTargetFPS(60);
+
+    Music bgm = LoadMusicStream("assets/audio/soundtrack.mp3");
+    PlayMusicStream(bgm);
 
     // Load textures required by the menu.
     Texture2D backgroundTexture;
     Texture2D logoTexture;
-    Texture2D dexTexture;
     // Abort early if any texture fails to load.
-    if (!load_menu_textures(&backgroundTexture, &logoTexture, &dexTexture))
+    if (!load_menu_textures(&backgroundTexture, &logoTexture))
     {
         CloseWindow();
         return 1;
@@ -819,7 +806,7 @@ int main(void)
     Font uiFontLight = load_ui_font_from_path("assets/fonts/Pixeloid/PixeloidSans.ttf", 30, &lightIsDefault);
 
     // Run the menu loop until exit.
-    run_menu(backgroundTexture, logoTexture, dexTexture, uiFontBold, uiFontLight, screenWidth, screenHeight);
+    run_menu(backgroundTexture, logoTexture, uiFontBold, uiFontLight, screenWidth, screenHeight, bgm);
 
     // Release assets.
     if (!boldIsDefault)
@@ -832,7 +819,9 @@ int main(void)
     }
 
     // Cleanup texture resources.
-    unload_menu_textures(backgroundTexture, logoTexture, dexTexture);
+    UnloadMusicStream(bgm);
+    unload_menu_textures(backgroundTexture, logoTexture);
+    CloseAudioDevice();
     CloseWindow();
     return 0;
 }
