@@ -713,12 +713,14 @@ static void run_menu(Texture2D backgroundTexture,
         Rectangle bgDst = {0.0f, 0.0f, (float)screenWidth, (float)screenHeight};
         DrawTexturePro(backgroundTexture, bgSrc, bgDst, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 
+        /*
         float platformY = screenHeight * platformTopRatio;
         float dexX = 40.0f;
         float dexY = platformY - dexHeight;
         Rectangle dexSrc = {0.0f, 0.0f, (float)dexTexture.width, (float)dexTexture.height};
         Rectangle dexDst = {dexX, dexY, dexWidth, dexHeight};
         DrawTexturePro(dexTexture, dexSrc, dexDst, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+        */
 
         // Draw the game logo.
         float logoX = (screenWidth - logoWidth) / 2.0f;
